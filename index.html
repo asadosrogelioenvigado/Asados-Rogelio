@@ -6,19 +6,8 @@
 <meta name="description" content="Asados Rogelio - Comida Típica Antioqueña desde 1994. Envigado, Antioquia.">
 <title>Asados Rogelio | Comida Típica desde 1994</title>
 <script>
-// Restore language BEFORE render to prevent flash or blank screen
-// Safety: only apply if explicitly set to 'en', default is always Spanish
-(function(){
-  try {
-    var lang = localStorage.getItem('ar-lang');
-    if(lang === 'en'){
-      document.documentElement.classList.add('lang-en-active');
-    } else {
-      // Clear any corrupted state
-      localStorage.removeItem('ar-lang');
-    }
-  } catch(e){}
-})();
+// Always start in Spanish — no preload class, no localStorage read before render
+// Language is applied AFTER DOM is ready via JS only
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Lora:ital,wght@0,400;0,500;1,400&family=Source+Sans+3:wght@300;400;600&display=swap" rel="stylesheet">
@@ -941,28 +930,23 @@ footer {
 }
 
 /* ===================== LANG: EN ===================== */
-/* Default: English content hidden, Spanish visible naturally */
-.lang-en { display: none !important; }
-.lang-en-inline { display: none !important; }
-.lang-en-flex { display: none !important; }
+/* Default state: Spanish visible, English hidden */
+/* .lang-es elements are visible by default (no rule needed) */
+/* .lang-en elements are hidden by default */
+.lang-en         { display: none; }
+.lang-en-inline  { display: none; }
 
-/* When English is active: hide Spanish, show English */
-body.lang-en .lang-es { display: none !important; }
-body.lang-en .lang-en { display: revert !important; }
-body.lang-en .lang-es-inline { display: none !important; }
-body.lang-en .lang-en-inline { display: revert !important; }
-body.lang-en .lang-es-flex { display: none !important; }
-body.lang-en .lang-en-flex { display: revert !important; }
-body.lang-en .entrada-desc-en { display: block !important; }
+/* Active English: reverse visibility */
+/* Use data attribute on body to avoid class name conflicts */
+body[data-lang="en"] .lang-es        { display: none; }
+body[data-lang="en"] .lang-en        { display: block; }
+body[data-lang="en"] .lang-es-inline { display: none; }
+body[data-lang="en"] .lang-en-inline { display: inline; }
+body[data-lang="en"] .entrada-desc-en { display: block; }
 
-/* Preload: applied to <html> before body renders (avoids flash) */
-html.lang-en-active body .lang-es { display: none !important; }
-html.lang-en-active body .lang-en { display: revert !important; }
-html.lang-en-active body .lang-es-inline { display: none !important; }
-html.lang-en-active body .lang-en-inline { display: revert !important; }
-html.lang-en-active body .lang-es-flex { display: none !important; }
-html.lang-en-active body .lang-en-flex { display: revert !important; }
-html.lang-en-active body .entrada-desc-en { display: block !important; }
+/* Spans that are inline by nature need inline not block */
+body[data-lang="en"] span.lang-en { display: inline; }
+body[data-lang="en"] a.lang-en    { display: inline; }
 
 </style>
 </head>
@@ -1812,22 +1796,25 @@ html.lang-en-active body .entrada-desc-en { display: block !important; }
 <script>
 // ===== LANG TOGGLE =====
 function toggleLang() {
-  const isEN = document.body.classList.toggle('lang-en');
-  document.documentElement.lang = isEN ? 'en' : 'es';
+  var isEN = document.body.getAttribute('data-lang') === 'en';
   if (isEN) {
-    document.documentElement.classList.add('lang-en-active');
-    try { localStorage.setItem('ar-lang', 'en'); } catch(e) {}
+    // Switch to Spanish
+    document.body.removeAttribute('data-lang');
+    document.documentElement.lang = 'es';
+    try { localStorage.setItem('ar-lang', 'es'); } catch(e) {}
   } else {
-    document.documentElement.classList.remove('lang-en-active');
-    try { localStorage.removeItem('ar-lang'); } catch(e) {}
+    // Switch to English
+    document.body.setAttribute('data-lang', 'en');
+    document.documentElement.lang = 'en';
+    try { localStorage.setItem('ar-lang', 'en'); } catch(e) {}
   }
 }
 
-// Restore saved language preference on load (body class sync)
+// Restore saved language AFTER DOM loads — never before
 (function() {
   try {
     if (localStorage.getItem('ar-lang') === 'en') {
-      document.body.classList.add('lang-en');
+      document.body.setAttribute('data-lang', 'en');
       document.documentElement.lang = 'en';
     }
   } catch(e) {}
