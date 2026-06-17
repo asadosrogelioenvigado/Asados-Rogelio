@@ -1609,7 +1609,7 @@ body[data-lang="en"] a.lang-en    { display: inline; }
           </div>
           <div class="ejecutivo-price">32k</div>
         </div>
-        <div class="ejecutivo-card" onclick="openModal('cazuela')" style="cursor:pointer;position:relative;">
+        <div class="ejecutivo-card" id="cazuela-card" onclick="openModal('cazuela')" style="cursor:pointer;position:relative;">
           <div>
             <div class="ejecutivo-name lang-es">Cazuela</div>
             <div class="ejecutivo-name lang-en">Cazuela — Colombian Casserole Bowl</div>
@@ -2058,6 +2058,16 @@ function showTab(id) {
   if (idx >= 0) {
     const card = document.getElementById('dia-' + idx);
     if (card) card.classList.add('hoy');
+  }
+})();
+
+// ===== CAZUELA VISIBILITY: only Mon–Thu =====
+(function() {
+  const today = new Date().getDay(); // 0=Sun, 1=Mon, 2=Tue, 3=Wed, 4=Thu, 5=Fri, 6=Sat
+  const visibleDays = [1, 2, 3, 4]; // Monday through Thursday
+  const cazuelaCard = document.getElementById('cazuela-card');
+  if (cazuelaCard && !visibleDays.includes(today)) {
+    cazuelaCard.remove();
   }
 })();
 
